@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora de Costos Operativos — Pranical</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #1A1A1A;
+  --paper: #F6F5F0;
+  --blue: #4ABFA3;
+  --blue-light: #E8F5F1;
+  --blue-mid: #4ABFA3;
+  --muted: #9AA4A5;
+  --border: #3E5052;
+  --radius: 16px;
+  --green: #4ABFA3;
+  --green-light: #E8F5F1;
+  --red: #ff6b6b;
+  --amber: #d97706;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: 'DM Sans', sans-serif; background: #1C2526; color: #FFFFFF; font-size: 16px; line-height: 1.6; overflow-x: hidden; }
+
+/* NAV */
+nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 3rem; background: rgba(28,37,38,0.92); backdrop-filter: blur(12px); border-bottom: 0.5px solid #3E5052; }
+.logo { font-family: 'Instrument Serif', serif; font-size: 22px; letter-spacing: -.02em; color: #FFFFFF; display: flex; align-items: center; gap: 8px; text-decoration: none; }
+.logo-dot { width: 8px; height: 8px; border-radius: 50%; background: #4ABFA3; display: inline-block; }
+.nav-pill { font-size: 12px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; color: #4ABFA3; background: rgba(74,191,163,.12); padding: 5px 14px; border-radius: 50px; border: 0.5px solid rgba(74,191,163,.3); }
+
+/* HERO */
+.hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 8rem 2rem 5rem; position: relative; overflow: hidden; }
+.hero-bg { position: absolute; inset: 0; z-index: 0; background: radial-gradient(ellipse 55% 50% at 65% 35%, rgba(74,191,163,0.12) 0%, transparent 70%), radial-gradient(ellipse 40% 55% at 15% 75%, rgba(74,191,163,0.06) 0%, transparent 60%); }
+.hero-grid { position: absolute; inset: 0; z-index: 0; opacity: .35; background-image: linear-gradient(#3E5052 1px, transparent 1px), linear-gradient(90deg, #3E5052 1px, transparent 1px); background-size: 60px 60px; mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%); }
+.hero-content { position: relative; z-index: 1; max-width: 700px; }
+.eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: #4ABFA3; font-weight: 500; margin-bottom: 1.75rem; opacity: 0; animation: fadeUp .6s .1s ease forwards; }
+.eyebrow::before, .eyebrow::after { content: ''; width: 24px; height: 1px; background: #4ABFA3; }
+h1 { font-family: 'Instrument Serif', serif; font-size: clamp(44px, 6.5vw, 80px); line-height: 1.04; letter-spacing: -.035em; color: #FFFFFF; margin-bottom: 1.5rem; font-weight: 400; opacity: 0; animation: fadeUp .7s .25s ease forwards; }
+h1 em { font-style: italic; color: #4ABFA3; }
+.hero-sub { font-size: 18px; color: #9AA4A5; max-width: 540px; margin: 0 auto 2.5rem; line-height: 1.7; font-weight: 300; opacity: 0; animation: fadeUp .7s .4s ease forwards; }
+.hero-arrow { opacity: 0; animation: fadeUp .7s .55s ease forwards; display: inline-flex; flex-direction: column; align-items: center; gap: 8px; color: #9AA4A5; font-size: 13px; text-decoration: none; transition: color .2s; }
+.hero-arrow:hover { color: #4ABFA3; }
+.arrow-circle { width: 40px; height: 40px; border-radius: 50%; border: 0.5px solid #3E5052; display: flex; align-items: center; justify-content: center; transition: border-color .2s; animation: bounce 2s 1.5s ease-in-out infinite; }
+.hero-arrow:hover .arrow-circle { border-color: #4ABFA3; }
+@keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(5px)} }
+.hero-stats { display: flex; justify-content: center; gap: 3.5rem; margin-top: 5rem; padding-top: 2.5rem; border-top: 0.5px solid #3E5052; opacity: 0; animation: fadeUp .7s .7s ease forwards; }
+.stat-num { font-family: 'Instrument Serif', serif; font-size: 38px; letter-spacing: -.03em; color: #FFFFFF; line-height: 1; }
+.stat-lbl { font-size: 13px; color: #9AA4A5; margin-top: 4px; font-weight: 300; }
+
+/* SHARED */
+.section-wrap { max-width: 760px; margin: 0 auto; padding: 7rem 2rem; }
+.section-tag { font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: #4ABFA3; font-weight: 500; margin-bottom: 2.5rem; display: flex; align-items: center; gap: 10px; }
+.section-tag::after { content: ''; flex: 1; height: 0.5px; background: #3E5052; max-width: 80px; }
+
+/* FORM */
+.q-section-header { font-family: 'Instrument Serif', serif; font-size: 24px; color: #FFFFFF; letter-spacing: -.02em; margin-bottom: 1.75rem; margin-top: .5rem; padding-bottom: .85rem; border-bottom: 0.5px solid #3E5052; }
+.q-section-header em { font-style: italic; color: #4ABFA3; }
+.q-block { margin-bottom: 2.75rem; }
+.q-label { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: .7rem; }
+.q-text { font-size: 17px; font-weight: 500; color: #FFFFFF; max-width: 80%; }
+.q-meta { display: flex; align-items: baseline; gap: .75rem; flex-shrink: 0; }
+.q-num { font-family: 'Instrument Serif', serif; font-style: italic; font-size: 15px; color: #9AA4A5; }
+.q-val { font-size: 17px; font-weight: 500; color: #4ABFA3; min-width: 60px; text-align: right; }
+.q-hint { font-size: 13.5px; color: #9AA4A5; margin-top: .5rem; line-height: 1.6; }
+.q-divider { border: none; border-top: 0.5px solid #3E5052; margin: 2.5rem 0; }
+
+/* INPUTS */
+.text-input { width: 100%; padding: .9rem 1.2rem; background: #2D3B3C; border: 0.5px solid #3E5052; border-radius: 10px; font-size: 16px; color: #FFFFFF; font-family: 'DM Sans', sans-serif; outline: none; transition: border-color .2s; }
+.text-input:focus { border-color: #4ABFA3; }
+.text-input::placeholder { color: #9AA4A5; }
+.input-prefix-wrap { position: relative; }
+.input-prefix { position: absolute; left: 1.1rem; top: 50%; transform: translateY(-50%); font-size: 15px; color: #9AA4A5; pointer-events: none; }
+.input-prefix-wrap .text-input { padding-left: 1.8rem; }
+
+select.text-input { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%23888076' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 1rem center; padding-right: 2.5rem; }
+
+input[type=range] { width: 100%; -webkit-appearance: none; height: 2px; background: rgba(74,191,163,.25); border-radius: 1px; outline: none; cursor: pointer; }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; background: #4ABFA3; border: 3px solid #1C2526; box-shadow: 0 0 0 1px #4ABFA3; cursor: pointer; transition: transform .15s; }
+input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+
+.pill-group { display: flex; gap: 8px; flex-wrap: wrap; margin-top: .6rem; }
+.pill { padding: 8px 20px; border-radius: 50px; font-size: 14px; cursor: pointer; border: 0.5px solid #3E5052; background: transparent; color: #9AA4A5; transition: all .15s; user-select: none; font-family: 'DM Sans', sans-serif; }
+.pill:hover { border-color: #4ABFA3; color: #FFFFFF; }
+.pill.active { background: rgba(74,191,163,.15); border-color: #4ABFA3; color: #4ABFA3; font-weight: 500; }
+
+/* EMAIL GATE */
+.gate-wrap { display: none; border-top: 0.5px solid #3E5052; }
+.gate-wrap.show { display: block; }
+.gate-inner { background: #212D2E; border-radius: 16px; padding: 3rem 2.5rem; position: relative; overflow: hidden; }
+.gate-glow { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse 70% 80% at 50% 50%, rgba(74,191,163,.18) 0%, transparent 70%); }
+.gate-tag { font-size: 10px; letter-spacing: .14em; text-transform: uppercase; background: #4ABFA3; color: #1C2526; padding: 4px 12px; border-radius: 50px; display: inline-block; margin-bottom: 1.5rem; font-weight: 500; position: relative; }
+.gate-inner h3 { font-family: 'Instrument Serif', serif; font-size: clamp(22px, 3.5vw, 32px); color: #F6F5F0; margin-bottom: .6rem; font-weight: 400; letter-spacing: -.02em; position: relative; line-height: 1.2; }
+.gate-inner h3 em { font-style: italic; color: #4ABFA3; }
+.gate-inner p { font-size: 15px; color: #9AA4A5; margin-bottom: 2rem; font-weight: 300; line-height: 1.65; max-width: 480px; position: relative; }
+.gate-cost-preview { font-family: 'Instrument Serif', serif; font-size: clamp(40px, 6vw, 60px); color: #ff6b6b; letter-spacing: -.04em; line-height: 1; margin: 1rem 0 .3rem; position: relative; }
+.gate-cost-sub { font-size: 13px; color: #9AA4A5; margin-bottom: 2rem; position: relative; font-weight: 300; }
+.gate-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; max-width: 520px; position: relative; }
+.gate-form-grid .full { grid-column: 1 / -1; }
+.gate-input { width: 100%; padding: .8rem 1.1rem; background: rgba(255,255,255,.06); border: 0.5px solid #3E5052; border-radius: 10px; font-size: 14px; color: #F6F5F0; font-family: 'DM Sans', sans-serif; outline: none; transition: border-color .2s; }
+.gate-input:focus { border-color: #4ABFA3; }
+.gate-input::placeholder { color: #9AA4A5; }
+.gate-input.error { border-color: #ff6b6b; }
+.gate-submit { margin-top: .5rem; width: 100%; padding: 1.05rem; background: #4ABFA3; color: #1C2526; border: none; border-radius: 50px; font-size: 15px; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: opacity .2s, transform .15s; position: relative; }
+.gate-submit:hover { opacity: .88; transform: translateY(-1px); }
+.gate-submit:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+.gate-note { font-size: 12px; color: #9AA4A5; margin-top: .75rem; position: relative; }
+
+/* RESULTS */
+.results-wrap { display: none; border-top: 0.5px solid #3E5052; }
+.results-wrap.show { display: block; }
+.generating { text-align: center; padding: 5rem 2rem; }
+.spinner { width: 32px; height: 32px; border-radius: 50%; border: 1.5px solid #3E5052; border-top-color: #4ABFA3; animation: spin .8s linear infinite; margin: 0 auto 1.25rem; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.gen-lbl { font-family: 'Instrument Serif', serif; font-style: italic; font-size: 16px; color: #9AA4A5; }
+.results-content { display: none; }
+.results-content.show { display: block; }
+
+/* VERDICT */
+.verdict-box { border-radius: 16px; padding: 2.5rem; text-align: center; margin-bottom: 1.5rem; position: relative; overflow: hidden; }
+.verdict-box.critical { background: #212D2E; }
+.verdict-box.high { background: #212D2E; }
+.verdict-box.moderate { background: #212D2E; }
+.verdict-glow { position: absolute; inset: 0; pointer-events: none; }
+.verdict-box.critical .verdict-glow { background: radial-gradient(ellipse 60% 70% at 50% 50%, rgba(220,38,38,.3) 0%, transparent 70%); }
+.verdict-box.high .verdict-glow { background: radial-gradient(ellipse 60% 70% at 50% 50%, rgba(74,191,163,.2) 0%, transparent 70%); }
+.verdict-box.moderate .verdict-glow { background: radial-gradient(ellipse 60% 70% at 50% 50%, rgba(217,119,6,.2) 0%, transparent 70%); }
+.verdict-tier { font-size: 10px; letter-spacing: .18em; text-transform: uppercase; font-weight: 700; padding: 4px 14px; border-radius: 50px; display: inline-block; margin-bottom: 1.25rem; position: relative; }
+.verdict-box.critical .verdict-tier { background: #ff6b6b; color: #1C2526; }
+.verdict-box.high .verdict-tier { background: #4ABFA3; color: #1C2526; }
+.verdict-box.moderate .verdict-tier { background: rgba(217,119,6,.9); color: #FFFFFF; }
+.verdict-amount { font-family: 'Instrument Serif', serif; font-size: clamp(56px, 9vw, 96px); letter-spacing: -.04em; line-height: 1; margin-bottom: .5rem; position: relative; }
+.verdict-box.critical .verdict-amount { color: #ff6b6b; }
+.verdict-box.high .verdict-amount { color: #4ABFA3; }
+.verdict-box.moderate .verdict-amount { color: #fbbf24; }
+.verdict-label { font-size: 14px; color: rgba(245,242,236,.45); margin-bottom: 1.5rem; font-weight: 300; position: relative; }
+.verdict-copy { font-size: 17px; color: rgba(255,255,255,.75); font-weight: 300; line-height: 1.75; max-width: 520px; margin: 0 auto 1.75rem; position: relative; }
+.verdict-copy strong { font-weight: 500; }
+
+/* METRICS BREAKDOWN */
+.breakdown-box { background: #2D3B3C; border: 0.5px solid #3E5052; border-radius: 16px; padding: 2rem; margin-bottom: 1.5rem; box-shadow: 0 2px 20px rgba(0,0,0,.04); }
+.breakdown-title { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: #9AA4A5; font-weight: 500; margin-bottom: 1.5rem; }
+.breakdown-row { display: flex; align-items: center; justify-content: space-between; padding: .85rem 0; border-bottom: 0.5px solid #3E5052; }
+.breakdown-row:last-child { border-bottom: none; padding-bottom: 0; }
+.breakdown-row.total { padding-top: 1rem; margin-top: .25rem; border-top: 1.5px solid #3E5052; border-bottom: none; }
+.br-label { font-size: 15px; color: #9AA4A5; font-weight: 300; max-width: 65%; line-height: 1.5; }
+.breakdown-row.total .br-label { font-size: 16px; font-weight: 500; color: #FFFFFF; }
+.br-val { font-family: 'Instrument Serif', serif; font-size: 20px; letter-spacing: -.02em; color: #ff6b6b; }
+.breakdown-row.total .br-val { font-size: 24px; color: #FFFFFF; }
+.br-val.savings { color: #4ABFA3; }
+
+/* PAYBACK */
+.payback-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: #3E5052; border-radius: 16px; overflow: hidden; margin-bottom: 1.5rem; }
+.payback-cell { background: #212D2E; padding: 1.75rem 1.5rem; text-align: center; }
+.payback-num { font-family: 'Instrument Serif', serif; font-size: 40px; letter-spacing: -.035em; line-height: 1; margin-bottom: .35rem; }
+.payback-cell:first-child .payback-num { color: #4ABFA3; }
+.payback-cell:last-child .payback-num { color: #4ABFA3; }
+.payback-lbl { font-size: 13.5px; color: #9AA4A5; font-weight: 300; line-height: 1.5; }
+
+/* AI ANALYSIS */
+.ai-box { background: #2D3B3C; border: 0.5px solid #3E5052; border-radius: 16px; padding: 2rem; margin-bottom: 1.5rem; position: relative; box-shadow: 0 2px 20px rgba(0,0,0,.04); }
+.ai-tag { position: absolute; top: -1px; left: 1.75rem; font-size: 10px; letter-spacing: .14em; text-transform: uppercase; background: #4ABFA3; color: #1C2526; font-weight: 500; padding: 3px 10px; border-radius: 0 0 8px 8px; }
+.ai-text { font-size: 16px; color: #FFFFFF; line-height: 1.85; font-weight: 300; padding-top: .75rem; }
+.cursor { display: inline-block; width: 2px; height: 1em; background: #4ABFA3; animation: blink .7s ease infinite; vertical-align: text-bottom; margin-left: 1px; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+/* CTA FINAL */
+.cta-box { background: #212D2E; border-radius: 16px; padding: 3.5rem 2.5rem; text-align: center; position: relative; overflow: hidden; margin-bottom: 1.5rem; }
+.cta-glow { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse 60% 80% at 50% 50%, rgba(74,191,163,.15) 0%, transparent 70%); }
+.cta-box h2 { font-family: 'Instrument Serif', serif; font-size: clamp(26px, 4vw, 42px); letter-spacing: -.025em; color: #FFFFFF; margin-bottom: .75rem; font-weight: 400; position: relative; line-height: 1.15; }
+.cta-box h2 em { font-style: italic; color: var(--blue-mid); }
+.cta-box p { font-size: 16px; color: #9AA4A5; margin-bottom: 2.25rem; font-weight: 300; max-width: 440px; margin-left: auto; margin-right: auto; line-height: 1.65; position: relative; }
+.btn-cta { display: inline-flex; align-items: center; gap: 10px; padding: 1rem 2.5rem; background: #4ABFA3; color: #1C2526; border: none; border-radius: 50px; font-size: 15px; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; text-decoration: none; transition: background .2s, transform .15s; position: relative; }
+.btn-cta:hover { background: #3DA88E; color: #FFFFFF; transform: translateY(-2px); }
+.cta-note { font-size: 12px; color: #9AA4A5; margin-top: .75rem; position: relative; }
+.cta-context { font-size: 13px; color: #9AA4A5; margin-top: 1.5rem; position: relative; font-style: italic; }
+
+/* RUN BTN */
+.run-btn { width: 100%; padding: 1.1rem; background: #4ABFA3; color: #1C2526; border: none; border-radius: 50px; font-size: 16px; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: background .2s, transform .15s; }
+.run-btn:hover { background: #3DA88E; transform: translateY(-1px); }
+.run-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+/* FOOTER */
+footer { border-top: 0.5px solid #3E5052; padding: 1.5rem 3rem; display: flex; justify-content: space-between; align-items: center; }
+.f-logo { font-family: 'Instrument Serif', serif; font-size: 17px; color: #9AA4A5; text-decoration: none; display: flex; align-items: center; gap: 7px; }
+footer p { font-size: 12px; color: #9AA4A5; font-weight: 300; }
+
+@keyframes fadeUp { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+.reveal { opacity: 0; transform: translateY(20px); transition: opacity .6s ease, transform .6s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+@media(max-width:640px){
+  nav { padding: 1rem 1.5rem; }
+  .hero { padding: 7rem 1.5rem 4rem; }
+  .hero-stats { gap: 2rem; flex-wrap: wrap; }
+  .section-wrap { padding: 4rem 1.5rem; }
+  .gate-form-grid { grid-template-columns: 1fr; }
+  .payback-row { grid-template-columns: 1fr; }
+  footer { flex-direction: column; gap: .5rem; text-align: center; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="#" class="logo"><span class="logo-dot"></span>Pranical</a>
+  <span class="nav-pill">Para Operaciones Financieras</span>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="eyebrow">Calculadora de Costos Operativos</div>
+    <h1>Tu equipo de datos no es<br>lento. Es <em>costoso.</em></h1>
+    <p class="hero-sub">Seis datos. Dos minutos. Por primera vez vas a saber cuánto te cuesta realmente tener a tus analistas ocupados en trabajo que no debería existir — y si los números para resolverlo tienen sentido.</p>
+    <a href="#calc" class="hero-arrow">
+      <div class="arrow-circle">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M3 8l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      Calcular ahora
+    </a>
+    <div class="hero-stats">
+      <div><div class="stat-num">65%</div><div class="stat-lbl">del tiempo de analistas en preparación de datos, no en análisis</div></div>
+      <div><div class="stat-num">$5K</div><div class="stat-lbl">costo promedio por remediar un error de cumplimiento</div></div>
+      <div><div class="stat-num">79%</div><div class="stat-lbl">de los proyectos de automatización fracasan o se detienen en el primer año</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- CALCULATOR -->
+<div class="section-wrap" id="calc">
+  <div class="section-tag reveal">Tus números</div>
+  <div class="reveal">
+
+    <div class="q-section-header">Tu <em>equipo</em></div>
+
+    <div class="q-block">
+      <div class="q-label">
+        <span class="q-text">Analistas o personal de operaciones cuyo trabajo principal involucra datos</span>
+        <div class="q-meta"><span class="q-num">01</span><span class="q-val" id="v1">8</span></div>
+      </div>
+      <input type="range" min="1" max="100" step="1" value="8" id="s1" oninput="document.getElementById('v1').textContent=this.value;liveCalc()">
+      <div class="q-hint">Incluye a cualquiera que regularmente extrae, limpia, transforma o formatea datos — aunque no esté en su título de cargo.</div>
+    </div>
+
+    <div class="q-block">
+      <div class="q-label">
+        <span class="q-text">Salario base anual promedio para estos roles (USD)</span>
+        <div class="q-meta"><span class="q-num">02</span><span class="q-val" id="v2">$150,000</span></div>
+      </div>
+      <div class="input-prefix-wrap">
+        <span class="input-prefix">$</span>
+        <input type="number" class="text-input" id="n2" value="150000" min="30000" max="500000" step="5000" oninput="document.getElementById('v2').textContent='$'+Number(this.value||0).toLocaleString();liveCalc()" placeholder="150000">
+      </div>
+      <div class="q-hint">Solo salario base. Aplicamos un multiplicador de 1.35x para beneficios, impuestos y gastos generales.</div>
+    </div>
+
+    <div class="q-block">
+      <div class="q-label">
+        <span class="q-text">¿Qué % de su día es preparación de datos vs. análisis real?</span>
+        <div class="q-meta"><span class="q-num">03</span><span class="q-val" id="v3">65%</span></div>
+      </div>
+      <input type="range" min="40" max="80" step="5" value="65" id="s3" oninput="document.getElementById('v3').textContent=this.value+'%';liveCalc()">
+      <div class="q-hint">Preparación = extraer reportes, limpiar hojas de cálculo, reformatear exportaciones, buscar datos fuente. Promedio de la industria: 65%.</div>
+    </div>
+
+    <div class="q-section-header" style="margin-top:2.5rem">Tu <em>exposición</em></div>
+
+    <div class="q-block">
+      <div class="q-label">
+        <span class="q-text">Errores de cumplimiento o discrepancias de datos descubiertas por mes</span>
+        <div class="q-meta"><span class="q-num">04</span></div>
+      </div>
+      <select class="text-input" id="s4" onchange="liveCalc()">
+        <option value="2.5">0–5 errores/mes</option>
+        <option value="12.5" selected>5–20 errores/mes</option>
+        <option value="35">20–50 errores/mes</option>
+        <option value="75">50+ errores/mes</option>
+      </select>
+      <div class="q-hint">Incluye cualquier situación que requirió tiempo humano para encontrar, investigar y corregir — sin importar la gravedad.</div>
+    </div>
+
+    <div class="q-block">
+      <div class="q-label">
+        <span class="q-text">Intentos previos de automatización en los últimos 2 años</span>
+        <div class="q-meta"><span class="q-num">05</span></div>
+      </div>
+      <div class="pill-group" id="auto-pills">
+        <div class="pill" id="ap-no" onclick="selectAutoPill('no')">Sin intentos</div>
+        <div class="pill active" id="ap-inprogress" onclick="selectAutoPill('inprogress')">En progreso</div>
+        <div class="pill" id="ap-yes" onclick="selectAutoPill('yes')">Fallidos o detenidos</div>
+      </div>
+      <div class="q-hint" id="auto-hint">Lo has intentado. No ha funcionado. Es la situación más común que vemos.</div>
+    </div>
+
+    <div class="q-block">
+      <div class="q-label">
+        <span class="q-text">Gasto mensual actual en herramientas de reportería y software de BI</span>
+        <div class="q-meta"><span class="q-num">06</span><span class="q-val" id="v6">$8,000</span></div>
+      </div>
+      <div class="input-prefix-wrap">
+        <span class="input-prefix">$</span>
+        <input type="number" class="text-input" id="n6" value="8000" min="0" max="200000" step="500" oninput="document.getElementById('v6').textContent='$'+Number(this.value||0).toLocaleString();liveCalc()" placeholder="8000">
+      </div>
+      <div class="q-hint">Tableau, Power BI, Looker, dashboards personalizados, costos de data warehouse. Total mensual.</div>
+    </div>
+
+    <hr style="border:none;border-top:0.5px solid #3E5052;margin:2.5rem 0">
+    <button class="run-btn" id="run-btn" onclick="showGate()">Calcular mi costo operativo →</button>
+  </div>
+</div>
+
+<!-- EMAIL GATE -->
+<div class="gate-wrap" id="gate-wrap">
+  <div class="section-wrap">
+    <div class="gate-inner">
+      <div class="gate-glow"></div>
+      <span class="gate-tag">Tu número está listo</span>
+      <h3>Estás gastando <em id="gate-headline-num">—</em><br>en trabajo que no debería existir.</h3>
+      <div class="gate-cost-preview" id="gate-cost">$0</div>
+      <div class="gate-cost-sub">costo anual total de tu problema operativo actual</div>
+      <p>Antes de mostrarte el desglose completo — ¿con quién estamos hablando? No enviamos contenido genérico. Lo que ves a continuación está calibrado para tus números.</p>
+      <div class="gate-form-grid">
+        <input type="text" class="gate-input" id="g-fname" placeholder="Nombre">
+        <input type="text" class="gate-input" id="g-lname" placeholder="Apellido">
+        <input type="email" class="gate-input full" id="g-email" placeholder="Correo corporativo">
+        <input type="text" class="gate-input" id="g-title" placeholder="Cargo">
+        <input type="text" class="gate-input" id="g-company" placeholder="Empresa">
+        <button class="gate-submit full" id="gate-btn" onclick="submitGate()">Mostrar mi análisis completo →</button>
+      </div>
+      <div class="gate-note">No vendemos tus datos. Recibirás el análisis e insights relevantes — nada más.</div>
+    </div>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<div class="results-wrap" id="results-wrap">
+  <div class="section-wrap">
+    <div class="section-tag">Tu análisis</div>
+    <div class="generating" id="generating">
+      <div class="spinner"></div>
+      <p class="gen-lbl">Calculando tus números…</p>
+    </div>
+    <div class="results-content" id="results-content">
+
+      <!-- VERDICT -->
+      <div class="verdict-box" id="verdict-box">
+        <div class="verdict-glow"></div>
+        <div class="verdict-tier" id="verdict-tier">—</div>
+        <div class="verdict-amount" id="verdict-amount">$0</div>
+        <div class="verdict-label">costo anual total del problema operativo</div>
+        <p class="verdict-copy" id="verdict-copy">—</p>
+      </div>
+
+      <!-- BREAKDOWN -->
+      <div class="breakdown-box">
+        <div class="breakdown-title">Dónde va el dinero</div>
+        <div class="breakdown-row">
+          <span class="br-label">Costo anual del trabajo automatizable de analistas<br><span style="font-size:11px;opacity:.6">Salarios totales × % preparación de datos</span></span>
+          <span class="br-val" id="br-prep">$0</span>
+        </div>
+        <div class="breakdown-row">
+          <span class="br-label">Costo anual de remediación de errores<br><span style="font-size:11px;opacity:.6">Errores mensuales × 12 × $5,000 por incidente</span></span>
+          <span class="br-val" id="br-errors">$0</span>
+        </div>
+        <div class="breakdown-row">
+          <span class="br-label">Gasto anual en herramientas de BI<br><span style="font-size:11px;opacity:.6">Costo mensual de herramientas × 12</span></span>
+          <span class="br-val" id="br-tools">$0</span>
+        </div>
+        <div class="breakdown-row total">
+          <span class="br-label">Costo anual total del problema</span>
+          <span class="br-val" id="br-total">$0</span>
+        </div>
+        <div class="breakdown-row" style="border-top:0.5px solid #3E5052;margin-top:.5rem">
+          <span class="br-label" style="color:#4ABFA3;font-weight:400">Ahorro anual post-automatización (escenario medio)<br><span style="font-size:11px;opacity:.7">Costo total − $72,000/año de implementación</span></span>
+          <span class="br-val savings" id="br-savings">$0</span>
+        </div>
+      </div>
+
+      <!-- PAYBACK -->
+      <div class="payback-row">
+        <div class="payback-cell">
+          <div class="payback-num" id="r-payback">—</div>
+          <div class="payback-lbl">semanas para recuperar<br>la inversión en automatización</div>
+        </div>
+        <div class="payback-cell">
+          <div class="payback-num" id="r-savings-mo">—</div>
+          <div class="payback-lbl">en ahorro mensual una vez<br>implementado completamente</div>
+        </div>
+      </div>
+
+      <!-- AI ANALYSIS -->
+      <div class="ai-box">
+        <span class="ai-tag">Analysis</span>
+        <p class="ai-text" id="ai-text"><span style="color:#9AA4A5;font-style:italic">Generating your analysis…</span></p>
+      </div>
+
+      <!-- CTA -->
+      <div class="cta-box">
+        <div class="cta-glow"></div>
+        <h2>You now know<br>what it <em>actually costs.</em></h2>
+        <p>La siguiente pregunta es si tu número es normal para una empresa de tu tamaño — o si eres un caso atípico. Hemos visto ambos. Una llamada de 20 minutos te dirá cuál eres y qué hacer al respecto.</p>
+        <a href="https://pranical.com/contacto" target="_blank" rel="noopener" class="btn-cta">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM9 6v3l2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          Descubre si tu número es normal →
+        </a>
+        <div class="cta-note">20 minutos · Sin pitch de ventas · Solo contexto de quienes han visto estos números antes</div>
+        <div class="cta-context">"Hemos hecho este análisis con más de 40 equipos de operaciones. Tu número nos dice más de lo que crees."</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<footer>
+  <a href="#" class="f-logo"><span class="logo-dot" style="width:7px;height:7px"></span>Pranical</a>
+  <p>© 2026 Pranical Technologies. Todos los derechos reservados.</p>
+</footer>
+
+<script>
+var cachedM = null;
+var analysisReady = false;
+var analysisData = null;
+var autoPill = 'inprogress';
+
+var autoHints = {
+  'no': 'Sin intentos previos. Tendrás menos costos irrecuperables que justificar — los números hablan solos.',
+  'inprogress': 'You\'ve tried. It hasn\'t stuck. That\'s the most common situation we see.',
+  'yes': 'Un intento fallido no es evidencia de que no funciona. Generalmente es evidencia del enfoque equivocado.'
+};
+
+function selectAutoPill(val) {
+  autoPill = val;
+  ['no','inprogress','yes'].forEach(function(k) {
+    var el = document.getElementById('ap-'+k);
+    if (k === val) { el.classList.add('active'); } else { el.classList.remove('active'); }
+  });
+  document.getElementById('auto-hint').textContent = autoHints[val];
+}
+
+function calcNumbers() {
+  var analysts = parseInt(document.getElementById('s1').value) || 0;
+  var salary = parseFloat(document.getElementById('n2').value) || 0;
+  var prepPct = parseInt(document.getElementById('s3').value) / 100;
+  var errorsPerMonth = parseFloat(document.getElementById('s4').value) || 0;
+  var toolMonthly = parseFloat(document.getElementById('n6').value) || 0;
+
+  var fullyLoadedAnnual = analysts * salary * 1.35;
+  var prepCost = fullyLoadedAnnual * prepPct;
+  var errorCost = errorsPerMonth * 12 * 5000;
+  var toolCost = toolMonthly * 12;
+  var totalProblem = prepCost + errorCost + toolCost;
+  var automationCost = 72000;
+  var annualSaving = totalProblem - automationCost;
+  var paybackWeeks = totalProblem > 0 ? Math.round(automationCost / (totalProblem / 52)) : 0;
+  var savingsMonthly = Math.round(annualSaving / 12);
+
+  var tier, tierLabel, verdictCopy;
+  if (totalProblem >= 1000000) {
+    tier = 'critical';
+    tierLabel = 'CRÍTICO';
+    verdictCopy = 'Tus números lo hacen obvio este trimestre. Con ' + fmt(totalProblem) + ' por año, no estás mirando un ejercicio de reducción de costos — estás mirando una corrección estructural que se paga sola en ' + paybackWeeks + ' semanas. La única pregunta es qué te ha detenido.';
+  } else if (totalProblem >= 500000) {
+    tier = 'high';
+    tierLabel = 'ALTO';
+    verdictCopy = 'Los números funcionan. ' + fmt(m.totalProblem) + ' por año es un número real — no teórico, no hipotético. Lo que estás decidiendo es el momento. Esperar otro trimestre te cuesta ' + fmt(Math.round(m.totalProblem / 4)) + '.';
+  } else {
+    tier = 'moderate';
+    tierLabel = 'MODERADO';
+    verdictCopy = 'El ahorro es real — ' + fmt(m.annualSaving > 0 ? m.annualSaving : 0) + ' por año una vez implementado. Los números se acumulan más despacio aquí, lo que significa que la calidad de ejecución importa más. Vale la pena una conversación antes de decidir.';
+  }
+
+  return {
+    analysts: analysts, salary: salary, prepPct: prepPct,
+    errorsPerMonth: errorsPerMonth, toolMonthly: toolMonthly,
+    fullyLoadedAnnual: fullyLoadedAnnual, prepCost: prepCost,
+    errorCost: errorCost, toolCost: toolCost,
+    totalProblem: totalProblem, annualSaving: annualSaving,
+    paybackWeeks: paybackWeeks, savingsMonthly: savingsMonthly,
+    tier: tier, tierLabel: tierLabel, verdictCopy: verdictCopy
+  };
+}
+
+function fmt(n) {
+  if (n >= 1000000) return '$' + (n/1000000).toFixed(1).replace(/\.0$/,'') + 'M';
+  if (n >= 1000) return '$' + Math.round(n/1000) + 'K';
+  return '$' + Math.round(n).toLocaleString();
+}
+
+function liveCalc() {
+  var m = calcNumbers();
+  cachedM = m;
+}
+
+function showGate() {
+  var m = calcNumbers();
+  cachedM = m;
+
+  var headline = m.totalProblem >= 1000000
+    ? fmt(m.totalProblem) + ' al año'
+    : fmt(m.totalProblem) + ' al año';
+  document.getElementById('gate-headline-num').textContent = headline;
+  document.getElementById('gate-cost').textContent = fmt(m.totalProblem);
+
+  document.getElementById('gate-wrap').classList.add('show');
+  setTimeout(function() { document.getElementById('gate-wrap').scrollIntoView({behavior:'smooth', block:'start'}); }, 100);
+}
+
+function submitGate() {
+  var fname = document.getElementById('g-fname').value.trim();
+  var lname = document.getElementById('g-lname').value.trim();
+  var email = document.getElementById('g-email').value.trim();
+  var title = document.getElementById('g-title').value.trim();
+  var company = document.getElementById('g-company').value.trim();
+
+  var valid = true;
+  [['g-fname',fname],['g-lname',lname],['g-email',email],['g-title',title],['g-company',company]].forEach(function(pair) {
+    var el = document.getElementById(pair[0]);
+    if (!pair[1] || (pair[0]==='g-email' && (pair[1].indexOf('@')<0||pair[1].indexOf('.')<0))) {
+      el.classList.add('error'); valid = false;
+    } else { el.classList.remove('error'); }
+  });
+  if (!valid) return;
+
+  var btn = document.getElementById('gate-btn');
+  btn.disabled = true; btn.textContent = 'Loading…';
+
+  fetch('/api/capture-lead', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({
+      email: email,
+      fuente: 'Calculadora de Costos Operativos',
+      industry: 'Finanzas',
+      nombre: fname + ' ' + lname,
+      cargo: title,
+      empresa: company
+    })
+  }).catch(function(){});
+
+  document.getElementById('gate-wrap').style.display = 'none';
+  var m = cachedM || calcNumbers();
+
+  document.getElementById('results-wrap').classList.add('show');
+  document.getElementById('generating').style.display = 'block';
+  document.getElementById('results-content').style.display = 'none';
+  document.getElementById('results-content').classList.remove('show');
+  setTimeout(function() { document.getElementById('results-wrap').scrollIntoView({behavior:'smooth', block:'start'}); }, 100);
+
+  generateAnalysis(m, fname);
+
+  btn.disabled = false; btn.textContent = 'Mostrar mi análisis completo →';
+}
+
+async function generateAnalysis(m, fname) {
+  analysisReady = false;
+  analysisData = null;
+
+  var errLabel = {2.5:'0–5', 12.5:'5–20', 35:'20–50', 75:'50+'}[m.errorsPerMonth] || String(m.errorsPerMonth);
+  var autoLabel = {no:'Sin intentos previos', inprogress:'Automatización en progreso', yes:'Intentos previos fallidos o detenidos'}[autoPill];
+
+  var prompt = 'Eres un analista de operaciones senior en Pranical Technologies presentando hallazgos a un COO o Director de Operaciones en servicios financieros. Directo, específico, de igual a igual. Sin jerga. En español.\n\nPerfil del cliente:\n- Analistas trabajando con datos: ' + m.analysts + '\n- Salario promedio: $' + m.salary.toLocaleString() + '\n- % del día en preparación de datos: ' + Math.round(m.prepPct*100) + '%\n- Errores por mes: ' + errLabel + '\n- Historial de automatización: ' + autoLabel + '\n- Gasto mensual en herramientas BI: $' + m.toolMonthly.toLocaleString() + '\n\nCostos calculados:\n- Costo anual trabajo automatizable: ' + fmt(m.prepCost) + '\n- Remediación de errores anual: ' + fmt(m.errorCost) + '\n- Costo anual herramientas BI: ' + fmt(m.toolCost) + '\n- Costo total anual del problema: ' + fmt(m.totalProblem) + '\n- Ahorro anual post-automatización: ' + fmt(m.annualSaving) + '\n- Período de recuperación: ' + m.paybackWeeks + ' semanas\n\nEscribe 3–4 oraciones de análisis en español. Directo y específico a sus números. Diles si su número es típico, alto o atípico para una empresa de su tamaño. Señala la partida más costosa y por qué importa. Si tienen historial fallido de automatización, abórdalo directamente sin ser condescendiente. Cierra con el siguiente paso lógico — no un pitch de ventas. Sin listas, sin encabezados, solo prosa.';
+
+  try {
+    var res = await fetch('/api/diagnose', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ prompt: prompt })
+    });
+    var data = await res.json();
+    analysisData = data.text || null;
+    analysisReady = true;
+  } catch(e) {
+    analysisData = null;
+    analysisReady = true;
+  }
+
+  renderResults(m, fname);
+}
+
+function renderResults(m, fname) {
+  document.getElementById('generating').style.display = 'none';
+  var rc = document.getElementById('results-content');
+  rc.style.display = 'block';
+  rc.classList.add('show');
+
+  // Verdict
+  var vbox = document.getElementById('verdict-box');
+  vbox.className = 'verdict-box ' + m.tier;
+  document.getElementById('verdict-tier').textContent = m.tierLabel;
+  document.getElementById('verdict-amount').textContent = fmt(m.totalProblem);
+  document.getElementById('verdict-copy').textContent = m.verdictCopy;
+
+  // Breakdown
+  document.getElementById('br-prep').textContent = fmt(m.prepCost);
+  document.getElementById('br-errors').textContent = fmt(m.errorCost);
+  document.getElementById('br-tools').textContent = fmt(m.toolCost);
+  document.getElementById('br-total').textContent = fmt(m.totalProblem);
+  document.getElementById('br-savings').textContent = m.annualSaving > 0 ? fmt(m.annualSaving) : '$0';
+
+  // Payback
+  document.getElementById('r-payback').textContent = m.paybackWeeks > 0 ? m.paybackWeeks+'w' : '—';
+  document.getElementById('r-savings-mo').textContent = m.savingsMonthly > 0 ? fmt(m.savingsMonthly)+'/mo' : '—';
+
+  // AI analysis typewriter
+  var text = analysisData || 'Con ' + fmt(m.totalProblem) + ' al año, el costo de la inacción es concreto. El mayor factor en tu caso es ' + (m.prepCost > m.errorCost ? 'el tiempo de analistas en trabajo que no debería requerir un humano' : 'la remediación de errores — cada incidente cuesta $5,000 en promedio y se acumulan') + '. Un período de recuperación de ' + m.paybackWeeks + ' semanas significa que esto no es una historia de ROI a varios años — es una decisión de este año.';
+
+  var el = document.getElementById('ai-text');
+  el.innerHTML = '<span class="cursor"></span>';
+  var cursor = el.querySelector('.cursor');
+  var i = 0;
+  function type() {
+    if (i < text.length) { cursor.insertAdjacentText('beforebegin', text[i]); i++; setTimeout(type, 15); }
+    else { cursor.remove(); }
+  }
+  type();
+}
+
+// Live calc on load
+liveCalc();
+
+var obs = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) { if(e.isIntersecting){ e.target.classList.add('visible'); obs.unobserve(e.target); }});
+}, {threshold:.1});
+document.querySelectorAll('.reveal').forEach(function(el) { obs.observe(el); });
+</script>
+</body>
+</html>
