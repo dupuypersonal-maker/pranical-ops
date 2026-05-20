@@ -402,7 +402,7 @@ footer p { font-size: 12px; color: #9AA4A5; font-weight: 300; }
       <!-- CTA -->
       <div class="cta-box">
         <div class="cta-glow"></div>
-        <h2>You now know<br>what it <em>actually costs.</em></h2>
+        <h2>Ahora sabes<br>lo que <em>realmente cuesta.</em></h2>
         <p>La siguiente pregunta es si tu número es normal para una empresa de tu tamaño — o si eres un caso atípico. Hemos visto ambos. Una llamada de 20 minutos te dirá cuál eres y qué hacer al respecto.</p>
         <a href="https://pranical.com/contacto" target="_blank" rel="noopener" class="btn-cta">
           <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM9 6v3l2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
@@ -603,8 +603,8 @@ function renderResults(m, fname) {
   document.getElementById('br-savings').textContent = m.annualSaving > 0 ? fmt(m.annualSaving) : '$0';
 
   // Payback
-  document.getElementById('r-payback').textContent = m.paybackWeeks > 0 ? m.paybackWeeks+'w' : '—';
-  document.getElementById('r-savings-mo').textContent = m.savingsMonthly > 0 ? fmt(m.savingsMonthly)+'/mo' : '—';
+  document.getElementById('r-payback').textContent = m.paybackWeeks > 0 ? m.paybackWeeks+' sem' : '—';
+  document.getElementById('r-savings-mo').textContent = m.savingsMonthly > 0 ? fmt(m.savingsMonthly)+'/mes' : '—';
 
   // AI analysis typewriter
   var text = analysisData || 'Con ' + fmt(m.totalProblem) + ' al año, el costo de la inacción es concreto. El mayor factor en tu caso es ' + (m.prepCost > m.errorCost ? 'el tiempo de analistas en trabajo que no debería requerir un humano' : 'la remediación de errores — cada incidente cuesta $5,000 en promedio y se acumulan') + '. Un período de recuperación de ' + m.paybackWeeks + ' semanas significa que esto no es una historia de ROI a varios años — es una decisión de este año.';
